@@ -226,7 +226,7 @@ export class AllocationReceiptCollector implements ReceiptCollector {
             }
             return results
           }
-          if (new Date() - voucher.createdAt > this.voucherExpiration) {
+          if (new Date() - voucher.createdAt > this.voucherExpiration * 1000) {
             try {
               await this.models.vouchers.destroy({
                 where: { allocation: voucher.allocation },
