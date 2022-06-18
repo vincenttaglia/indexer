@@ -228,6 +228,23 @@ export class AllocationReceiptCollector implements ReceiptCollector {
             }
             return results
           }
+          if (new Date() - voucher.createdAt > this.voucherExpiration) {
+            try {
+              await this.models.vouchers.destroy({
+                where: { allocation: voucher.allocation },
+              })
+              logger.warn(
+                `Query fee voucher for allocation expired, deleted local voucher copy`,
+                { allocation: voucher.allocation },
+              )
+            } catch (err) {
+              logger.warn(`Failed to delete local vouchers copy, will try again later`, {
+                err,
+                allocation: voucher.allocation,
+              })
+            }
+            return results
+          }
           if (BigNumber.from(voucher.amount).lt(this.voucherRedemptionThreshold)) {
             results.belowThreshold.push(voucher)
           } else {
